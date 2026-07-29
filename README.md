@@ -154,6 +154,7 @@ README.md                 ← This file
 | **Feelings Explorer** *(this tool)* | 5–10 | Flip cards with definitions, intensity sliders, drawing canvas |
 | **Teen Check-in** | 11–17 | Body map, triggers, journal, counselor view, student privacy controls |
 | **Emotion Wheel** | Adults | Plutchik wheel, mood journal, guided discovery |
+| **Burnout Barometer** | 10+ | Age-specific burnout assessment, live thermometer, recovery activities |
 
 ---
 
