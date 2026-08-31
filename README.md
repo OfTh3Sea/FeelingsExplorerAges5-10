@@ -1,3 +1,4 @@
+<img width="4480" height="2440" alt="feelings_explorer_poster" src="https://github.com/user-attachments/assets/83fd4df0-5dc8-4fe9-b6b0-6b2e5691b5e9" />
 # 🧭 Feelings Explorer
 ### Emotional Check-in Tool for Ages 5–10
 
