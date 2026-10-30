@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Feelings Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0f7ff;
+  --card: #ffffff;
+  --ink: #2d3a4a;
+  --muted: #7a8fa8;
+  --radius: 22px;
+  --happy:#FFD93D;    --happy-lt:#FFFBEA;    --happy-dk:#a06800;
+  --excited:#FF9F43;  --excited-lt:#FFF3E0;  --excited-dk:#b55e00;
+  --proud:#6BCB77;    --proud-lt:#EDFAF0;    --proud-dk:#1a6a28;
+  --grateful:#A8E6CF; --grateful-lt:#E8FAF5; --grateful-dk:#1a6a55;
+  --calm:#74B3CE;     --calm-lt:#EAF5FB;     --calm-dk:#1a4a6a;
+  --silly:#FF6BB5;    --silly-lt:#FFF0F8;    --silly-dk:#8b1a55;
+  --worried:#FFB347;  --worried-lt:#FFF5E0;  --worried-dk:#8b4500;
+  --frustrated:#FF6B6B;--frustrated-lt:#FFF0F0;--frustrated-dk:#8b1a1a;
+  --sad:#7B9FD4;      --sad-lt:#EDF3FC;      --sad-dk:#1a3a6a;
+  --angry:#E84040;    --angry-lt:#FFF0F0;    --angry-dk:#7a0000;
+  --scared:#B084CC;   --scared-lt:#F5EDFF;   --scared-dk:#4a1a80;
+  --lonely:#8AAAC8;   --lonely-lt:#EDF3FA;   --lonely-dk:#2a4a6a;
+  --confused:#C8A870; --confused-lt:#FDF5E6; --confused-dk:#6a4a00;
+  --bored:#A0B8C0;    --bored-lt:#EDF5F8;    --bored-dk:#2a4a55;
+  --jealous:#78C0A8;  --jealous-lt:#E8FAF5;  --jealous-dk:#1a5a45;
+  --embarrassed:#FF8FA0;--embarrassed-lt:#FFF0F3;--embarrassed-dk:#8b1a2a;
+  --disappointed:#9090C0;--disappointed-lt:#F0F0FA;--disappointed-dk:#2a2a6a;
+  --nervous:#D4A847;  --nervous-lt:#FDF5E0;  --nervous-dk:#6a4a00;
+  --hopeful:#60C0A0;  --hopeful-lt:#E0FAF3;  --hopeful-dk:#1a5a40;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;font-family:'Nunito',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden;touch-action:manipulation;}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:100vh;flex-direction:column;align-items:center;}
+.screen.active{display:flex;}
+
+/* ── WELCOME ── */
+#screen-welcome{justify-content:center;gap:2rem;padding:2.5rem 1.5rem;background:linear-gradient(160deg,#e8f4ff 0%,#f0f7ff 60%);}
+.w-logo{text-align:center;}
+.w-logo h1{font-size:clamp(2.4rem,9vw,4rem);font-weight:900;line-height:1;letter-spacing:-.02em;background:linear-gradient(135deg,#4A90D9,#6BCB77,#FF9F43,#FF6BB5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.w-logo p{font-size:clamp(1rem,3.5vw,1.3rem);font-weight:700;color:#5a7a9a;margin-top:.3rem;}
+.w-face{font-size:clamp(4rem,15vw,7rem);text-align:center;animation:wobble 3s ease-in-out infinite;}
+@keyframes wobble{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
+.w-btn{background:linear-gradient(135deg,#4A90D9,#6B9FE0);color:white;border:none;border-radius:999px;font-family:'Nunito',sans-serif;font-size:clamp(1.1rem,4vw,1.5rem);font-weight:900;padding:.9rem 3rem;cursor:pointer;box-shadow:0 6px 0 #2a60a9,0 8px 20px rgba(74,144,217,.35);transition:all .12s;letter-spacing:.01em;}
+.w-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #2a60a9;}
+.w-features{display:flex;gap:.7rem;flex-wrap:wrap;justify-content:center;max-width:420px;}
+.w-feat{background:white;border-radius:14px;padding:.55rem 1rem;font-size:.8rem;font-weight:700;color:#5a7a9a;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+
+/* ── EMOTIONS SCREEN ── */
+#screen-emotions{padding:1rem .8rem 5rem;gap:.8rem;background:var(--bg);}
+.em-header{text-align:center;width:100%;}
+.em-header h2{font-size:clamp(1.4rem,5.5vw,2rem);font-weight:900;color:var(--ink);}
+.em-header p{font-size:.88rem;font-weight:600;color:var(--muted);margin-top:.2rem;}
+.em-count-badge{display:inline-flex;align-items:center;gap:.4rem;background:#4A90D9;color:white;border-radius:999px;padding:.3rem .9rem;font-size:.8rem;font-weight:800;margin-top:.4rem;}
+
+/* Emotion grid */
+.em-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.7rem;width:100%;max-width:560px;}
+
+/* Flip card */
+.flip-card{height:clamp(160px,42vw,195px);perspective:800px;cursor:pointer;}
+.flip-card-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .45s cubic-bezier(.4,0,.2,1);}
+.flip-card.flipped .flip-card-inner{transform:rotateY(180deg);}
+.flip-front,.flip-back{position:absolute;inset:0;border-radius:var(--radius);backface-visibility:hidden;-webkit-backface-visibility:hidden;border:3px solid transparent;transition:border-color .2s,box-shadow .2s;}
+.flip-front{background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.45rem;box-shadow:0 3px 0 rgba(0,0,0,.07),0 2px 12px rgba(0,0,0,.06);padding:.7rem .5rem;}
+.flip-back{background:var(--em-color,#eee);transform:rotateY(180deg);display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:.7rem .8rem;gap:.2rem;overflow:hidden;}
+.flip-card.selected .flip-front{border-color:var(--em-color);box-shadow:0 3px 0 rgba(0,0,0,.07),0 0 0 4px var(--em-color)44;}
+.flip-card.selected .flip-back{border-color:white;box-shadow:0 0 0 4px white44;}
+.em-face{font-size:clamp(2rem,7vw,2.8rem);line-height:1;transition:transform .2s cubic-bezier(.34,1.56,.64,1);}
+.flip-card:active .em-face{transform:scale(1.15);}
+.em-label{font-size:clamp(.78rem,2.8vw,1rem);font-weight:900;color:var(--em-dk,#333);text-align:center;}
+.flip-hint{font-size:.6rem;font-weight:700;color:#b0c0d0;letter-spacing:.05em;text-transform:uppercase;}
+.flip-back-def{font-size:.67rem;font-weight:700;color:rgba(0,0,0,.75);line-height:1.35;flex:1;overflow:hidden;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;}
+.flip-back-ex{font-size:.63rem;font-weight:600;color:rgba(0,0,0,.6);line-height:1.3;font-style:italic;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.flip-back-label{font-size:.58rem;font-weight:900;color:rgba(0,0,0,.5);text-transform:uppercase;letter-spacing:.08em;flex-shrink:0;}
+.flip-back-name{font-size:.9rem;font-weight:900;color:rgba(0,0,0,.8);flex-shrink:0;}
+
+/* Selected emotion — slide-in scale */
+.scale-panel{background:white;border-radius:16px;border:3px solid var(--em-color);padding:.8rem 1rem .7rem;margin-top:.3rem;animation:slideDown .22s ease;width:100%;box-sizing:border-box;overflow:hidden;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.scale-label{font-size:.72rem;font-weight:900;color:var(--em-dk);text-transform:uppercase;letter-spacing:.07em;margin-bottom:.5rem;}
+.scale-track{display:flex;align-items:center;gap:.5rem;width:100%;min-width:0;}
+.scale-track input[type=range]{flex:1;min-width:0;-webkit-appearance:none;height:8px;border-radius:999px;background:linear-gradient(to right,var(--em-color) var(--pct,50%),#e8edf2 var(--pct,50%));outline:none;cursor:pointer;}
+.scale-track input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:26px;height:26px;border-radius:50%;background:var(--em-color);border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.2);cursor:pointer;}
+.scale-val{font-size:1rem;font-weight:900;color:var(--em-dk);min-width:24px;text-align:center;flex-shrink:0;}
+.scale-emojis{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);margin-top:.25rem;}
+
+/* More emotions button */
+.more-btn{background:white;border:2.5px dashed #b0c8e0;border-radius:999px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:800;color:#4A90D9;padding:.55rem 1.4rem;cursor:pointer;transition:all .18s;margin:0 auto;}
+.more-btn:hover{background:#EAF4FF;border-color:#4A90D9;}
+
+/* Floating next button */
+.floating-next{position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%);z-index:50;background:linear-gradient(135deg,#4A90D9,#6B9FE0);color:white;border:none;border-radius:999px;font-family:'Nunito',sans-serif;font-size:1rem;font-weight:900;padding:.75rem 2.2rem;cursor:pointer;box-shadow:0 5px 0 #2a60a9,0 4px 20px rgba(74,144,217,.4);transition:all .15s;opacity:.35;pointer-events:none;white-space:nowrap;}
+.floating-next.ready{opacity:1;pointer-events:auto;}
+.floating-next.ready:active{transform:translateX(-50%) translateY(3px);box-shadow:0 2px 0 #2a60a9;}
+
+/* ── DRAW SCREEN ── */
+#screen-draw{padding:0;background:#f8faff;}
+.draw-header{padding:.8rem 1rem .6rem;background:white;border-bottom:2px solid #e8edf5;width:100%;display:flex;align-items:center;justify-content:space-between;gap:.5rem;}
+.draw-title{font-size:1rem;font-weight:900;color:var(--ink);}
+.draw-subtitle{font-size:.72rem;font-weight:700;color:var(--muted);}
+.draw-skip{background:none;border:2px solid #d0dce8;border-radius:999px;font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:800;color:var(--muted);padding:.3rem .8rem;cursor:pointer;}
+.draw-skip:active{background:#f0f5ff;}
+
+.canvas-area{flex:1;display:flex;flex-direction:column;align-items:center;width:100%;background:#f8faff;padding:.6rem .6rem 0;}
+#draw-canvas{border-radius:18px;background:white;box-shadow:0 4px 0 rgba(0,0,0,.08),0 2px 16px rgba(0,0,0,.08);touch-action:none;cursor:crosshair;display:block;max-width:560px;width:100%;}
+
+/* Toolbar */
+.draw-toolbar{width:100%;max-width:560px;background:white;border-radius:0 0 18px 18px;padding:.6rem .8rem;display:flex;align-items:center;gap:.5rem;box-shadow:0 4px 0 rgba(0,0,0,.06);margin-bottom:.5rem;}
+.tool-group{display:flex;align-items:center;gap:.35rem;}
+.tool-sep{width:1px;height:28px;background:#e8edf5;flex-shrink:0;}
+
+/* Color swatches */
+.draw-color{width:clamp(26px,7vw,34px);height:clamp(26px,7vw,34px);border-radius:50%;border:3px solid transparent;cursor:pointer;transition:all .15s;flex-shrink:0;}
+.draw-color.active{border-color:var(--ink);transform:scale(1.2);box-shadow:0 2px 6px rgba(0,0,0,.2);}
+
+/* Brush size */
+.brush-btn{border:none;border-radius:50%;background:#f0f5ff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0;}
+.brush-btn.active{background:#4A90D9;}
+.brush-dot{border-radius:50%;background:var(--ink);transition:background .15s;}
+.brush-btn.active .brush-dot{background:white;}
+
+/* Eraser + undo + clear */
+.tool-icon-btn{border:none;border-radius:10px;background:#f0f5ff;padding:.35rem .6rem;font-family:'Nunito',sans-serif;font-size:.78rem;font-weight:800;color:#4A90D9;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.tool-icon-btn:active,.tool-icon-btn.active{background:#4A90D9;color:white;}
+.tool-icon-btn.danger{color:#e84040;}
+.tool-icon-btn.danger:active{background:#e84040;color:white;}
+
+.draw-done-btn{margin-left:auto;background:linear-gradient(135deg,#6BCB77,#4ab855);color:white;border:none;border-radius:999px;font-family:'Nunito',sans-serif;font-size:.88rem;font-weight:900;padding:.45rem 1.2rem;cursor:pointer;box-shadow:0 3px 0 #2a8a38;transition:all .12s;white-space:nowrap;}
+.draw-done-btn:active{transform:translateY(2px);box-shadow:0 1px 0 #2a8a38;}
+
+/* ── SUMMARY SCREEN ── */
+#screen-summary{padding:1rem 1rem 2rem;gap:1rem;background:linear-gradient(160deg,#e8f4ff 0%,#f0f7ff 70%);}
+.sum-header{text-align:center;width:100%;}
+.sum-header h2{font-size:clamp(1.6rem,6vw,2.4rem);font-weight:900;color:var(--ink);}
+.sum-header p{font-size:.9rem;font-weight:600;color:var(--muted);margin-top:.2rem;}
+.sum-face-row{display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center;max-width:520px;}
+.sum-em-chip{display:flex;align-items:center;gap:.4rem;padding:.4rem .9rem .4rem .5rem;border-radius:999px;font-size:.85rem;font-weight:800;}
+.sum-em-face{font-size:1.3rem;}
+.sum-intensity-bar{height:6px;border-radius:999px;width:100%;background:#e8edf5;margin-top:.15rem;overflow:hidden;}
+.sum-intensity-fill{height:100%;border-radius:999px;}
+.sum-card{background:white;border-radius:20px;padding:1.1rem 1.3rem;box-shadow:0 3px 0 rgba(0,0,0,.06);width:100%;max-width:520px;}
+.sum-card-title{font-size:.7rem;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.7rem;}
+.sum-em-detail{display:flex;flex-direction:column;gap:.5rem;}
+.sum-em-row{display:flex;align-items:center;gap:.7rem;}
+.sum-em-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
+.sum-em-name{font-size:.88rem;font-weight:800;flex:1;}
+.sum-em-scale{display:flex;align-items:center;gap:.4rem;flex:2;}
+.sum-bar-track{flex:1;height:8px;border-radius:999px;background:#e8edf5;overflow:hidden;}
+.sum-bar-fill{height:100%;border-radius:999px;}
+.sum-bar-val{font-size:.78rem;font-weight:800;color:var(--muted);min-width:22px;text-align:right;}
+.sum-drawing{border-radius:14px;border:3px solid #e8edf5;max-width:280px;width:100%;display:block;margin:0 auto;}
+.sum-actions{display:flex;gap:.7rem;flex-wrap:wrap;justify-content:center;}
+.sum-btn{border:none;border-radius:999px;font-family:'Nunito',sans-serif;font-size:.9rem;font-weight:900;padding:.65rem 1.8rem;cursor:pointer;transition:all .12s;}
+.sum-btn.primary{background:linear-gradient(135deg,#4A90D9,#6B9FE0);color:white;box-shadow:0 4px 0 #2a60a9;}
+.sum-btn.primary:active{transform:translateY(3px);box-shadow:0 1px 0 #2a60a9;}
+.sum-btn.ghost{background:white;color:var(--muted);border:2px solid #d8e5f0;}
+.sum-btn.ghost:active{background:#f0f5ff;}
+
+/* Confetti */
+.confetti-p{position:fixed;border-radius:2px;pointer-events:none;z-index:200;animation:cfall linear forwards;}
+@keyframes cfall{0%{transform:translateY(-20px) rotate(0) scale(1);opacity:1;}100%{transform:translateY(100vh) rotate(540deg) scale(.4);opacity:0;}}
+
+/* Progress */
+.prog-bar{position:fixed;top:0;left:0;right:0;height:4px;background:linear-gradient(to right,#4A90D9,#6BCB77);z-index:100;transition:width .4s ease;transform-origin:left;}
+
+/* Back btn */
+.back-b{position:fixed;top:.8rem;left:.8rem;width:40px;height:40px;border-radius:50%;border:2.5px solid #d0dce8;background:white;font-size:1.2rem;cursor:pointer;display:none;align-items:center;justify-content:center;z-index:60;box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.back-b:active{background:#f0f5ff;}
+.back-b.vis{display:flex;}
+</style>
+</head>
+<body>
+
+<div class="prog-bar" id="prog-bar" style="width:0%"></div>
+<button class="back-b" id="back-b" onclick="goBack()">←</button>
+
+<!-- ══ WELCOME ══ -->
+<div class="screen active" id="screen-welcome">
+  <div class="w-logo">
+    <h1>Feelings<br>Explorer</h1>
+    <p>For ages 5–10 · Check in with yourself</p>
+  </div>
+  <div class="w-face">🧠💭</div>
+  <div class="w-features">
+    <span class="w-feat">✦ Pick your feelings</span>
+    <span class="w-feat">✦ Rate how strong</span>
+    <span class="w-feat">✦ Draw a picture</span>
+    <span class="w-feat">✦ Learn what feelings mean</span>
+  </div>
+  <button class="w-btn" onclick="startFlow()">Start Check-in ✨</button>
+</div>
+
+<!-- ══ EMOTIONS ══ -->
+<div class="screen" id="screen-emotions">
+  <div class="em-header">
+    <h2>How are you feeling today?</h2>
+    <p>Tap a feeling to learn more. Tap again to pick it!</p>
+    <div class="em-count-badge" id="em-count-badge">0 feelings picked</div>
+  </div>
+  <div class="em-grid" id="em-grid"></div>
+  <button class="more-btn" id="more-btn" onclick="showMore()">＋ More feelings</button>
+  <button class="floating-next" id="floating-next" onclick="goToDraw()">Next: Draw a picture →</button>
+</div>
+
+<!-- ══ DRAW ══ -->
+<div class="screen" id="screen-draw">
+  <div class="draw-header">
+    <div>
+      <div class="draw-title">Draw how you feel 🎨</div>
+      <div class="draw-subtitle">Use your finger or stylus to draw anything!</div>
+    </div>
+    <button class="draw-skip" onclick="goToSummary()">Next →</button>
+  </div>
+
+  <div class="canvas-area">
+    <canvas id="draw-canvas"></canvas>
+    <div class="draw-toolbar" id="draw-toolbar">
+      <!-- Colors -->
+      <div class="tool-group" id="color-group"></div>
+      <div class="tool-sep"></div>
+      <!-- Brush sizes -->
+      <div class="tool-group" id="brush-group"></div>
+      <div class="tool-sep"></div>
+      <!-- Tools -->
+      <button class="tool-icon-btn" id="eraser-btn" onclick="toggleEraser()">⌫ Erase</button>
+      <button class="tool-icon-btn" onclick="undoDraw()">↩</button>
+      <button class="tool-icon-btn danger" onclick="clearDraw()">🗑️</button>
+      <button class="draw-done-btn" onclick="goToSummary()">Done! ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SUMMARY ══ -->
+<div class="screen" id="screen-summary">
+  <div class="sum-header">
+    <h2>Your check-in 🌟</h2>
+    <p>Here's what you shared today</p>
+  </div>
+  <div class="sum-face-row" id="sum-face-row"></div>
+  <div class="sum-card">
+    <div class="sum-card-title">How much you're feeling each one</div>
+    <div class="sum-em-detail" id="sum-em-detail"></div>
+  </div>
+  <div class="sum-card" id="sum-drawing-card" style="display:none">
+    <div class="sum-card-title">Your drawing</div>
+    <canvas class="sum-drawing" id="sum-preview"></canvas>
+  </div>
+  <div class="sum-actions">
+    <button class="sum-btn primary" onclick="resetFlow()">Check in again 🔄</button>
+    <button class="sum-btn ghost" onclick="showScreen('emotions')">← Change feelings</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  EMOTION DATA
+// ══════════════════════════════════════════
+const EMOTIONS = [
+  // Core 8
+  {id:'happy',     label:'Happy',      face:'😊', color:'#FFD93D', lt:'#FFFBEA', dk:'#a06800', tier:1,
+   def:'Happy means you feel good inside — like sunshine in your chest.',
+   ex:'"I felt happy when my best friend came over to play."'},
+  {id:'excited',   label:'Excited',    face:'🤩', color:'#FF9F43', lt:'#FFF3E0', dk:'#b55e00', tier:1,
+   def:'Excited means something great is about to happen and you can barely wait!',
+   ex:'"I felt excited the night before my birthday."'},
+  {id:'proud',     label:'Proud',      face:'😤', color:'#6BCB77', lt:'#EDFAF0', dk:'#1a6a28', tier:1,
+   def:'Proud means you did something great and feel really good about it.',
+   ex:'"I felt proud when I finally learned to ride my bike."'},
+  {id:'calm',      label:'Calm',       face:'😌', color:'#74B3CE', lt:'#EAF5FB', dk:'#1a4a6a', tier:1,
+   def:'Calm means feeling peaceful and relaxed — like nothing can bother you.',
+   ex:'"I felt calm when I was reading my favorite book."'},
+  {id:'worried',   label:'Worried',    face:'😟', color:'#FFB347', lt:'#FFF5E0', dk:'#8b4500', tier:1,
+   def:'Worried means your brain keeps thinking about something that might go wrong.',
+   ex:'"I felt worried before my spelling test."'},
+  {id:'frustrated',label:'Frustrated', face:'😤', color:'#FF6B6B', lt:'#FFF0F0', dk:'#8b1a1a', tier:1,
+   def:'Frustrated means you tried really hard but something just isn\'t working.',
+   ex:'"I felt frustrated when I couldn\'t figure out the puzzle."'},
+  {id:'sad',       label:'Sad',        face:'😢', color:'#7B9FD4', lt:'#EDF3FC', dk:'#1a3a6a', tier:1,
+   def:'Sad means you feel heavy or hurt inside, often because of something you lost or missed.',
+   ex:'"I felt sad when my friend moved away."'},
+  {id:'scared',    label:'Scared',     face:'😨', color:'#B084CC', lt:'#F5EDFF', dk:'#4a1a80', tier:1,
+   def:'Scared means something feels dangerous or unknown and your body wants to protect you.',
+   ex:'"I felt scared during the thunderstorm at night."'},
+  // Extended (tier 2)
+  {id:'grateful',  label:'Grateful',   face:'🥰', color:'#A8E6CF', lt:'#E8FAF5', dk:'#1a6a55', tier:2,
+   def:'Grateful means you feel thankful for something or someone in your life.',
+   ex:'"I felt grateful when my grandma made my favorite dinner."'},
+  {id:'silly',     label:'Silly',      face:'🤪', color:'#FF6BB5', lt:'#FFF0F8', dk:'#8b1a55', tier:2,
+   def:'Silly means you feel playful and a little goofy — like laughing at everything!',
+   ex:'"I felt silly when I wore my shirt backwards all day."'},
+  {id:'lonely',    label:'Lonely',     face:'🥺', color:'#8AAAC8', lt:'#EDF3FA', dk:'#2a4a6a', tier:2,
+   def:'Lonely means you feel like nobody is around or nobody understands you.',
+   ex:'"I felt lonely when everyone was playing without me."'},
+  {id:'confused',  label:'Confused',   face:'😕', color:'#C8A870', lt:'#FDF5E6', dk:'#6a4a00', tier:2,
+   def:'Confused means something doesn\'t make sense and your brain feels all mixed up.',
+   ex:'"I felt confused when the math problem didn\'t make sense."'},
+  {id:'bored',     label:'Bored',      face:'😑', color:'#A0B8C0', lt:'#EDF5F8', dk:'#2a4a55', tier:2,
+   def:'Bored means nothing feels interesting and time seems to go really slowly.',
+   ex:'"I felt bored waiting at the doctor\'s office with nothing to do."'},
+  {id:'jealous',   label:'Jealous',    face:'😒', color:'#78C0A8', lt:'#E8FAF5', dk:'#1a5a45', tier:2,
+   def:'Jealous means you wish you had what someone else has — their toy, their friend, or their talent.',
+   ex:'"I felt jealous when my brother got a new game and I didn\'t."'},
+  {id:'embarrassed',label:'Embarrassed',face:'😳',color:'#FF8FA0', lt:'#FFF0F3', dk:'#8b1a2a', tier:2,
+   def:'Embarrassed means you feel awkward or shy because of something that happened.',
+   ex:'"I felt embarrassed when I tripped in front of the whole class."'},
+  {id:'disappointed',label:'Disappointed',face:'😞',color:'#9090C0',lt:'#F0F0FA',dk:'#2a2a6a',tier:2,
+   def:'Disappointed means you were hoping for something good but it didn\'t happen.',
+   ex:'"I felt disappointed when the field trip got cancelled because of rain."'},
+  {id:'nervous',   label:'Nervous',    face:'😬', color:'#D4A847', lt:'#FDF5E0', dk:'#6a4a00', tier:2,
+   def:'Nervous means your tummy feels fluttery because something new or important is happening.',
+   ex:'"I felt nervous before my first day at a new school."'},
+  {id:'hopeful',   label:'Hopeful',    face:'🤞', color:'#60C0A0', lt:'#E0FAF3', dk:'#1a5a40', tier:2,
+   def:'Hopeful means you believe something good might happen even if you\'re not sure.',
+   ex:'"I felt hopeful that I\'d make the team after practice."'},
+];
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+const state = {
+  selected: {},   // { emotionId: intensityValue 1-10 }
+  showingMore: false,
+  drawingData: null,
+  erasing: false,
+};
+
+// ══════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════
+const SCREENS = ['welcome','emotions','draw','summary'];
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  state.screen = id;
+  const idx = SCREENS.indexOf(id);
+  document.getElementById('prog-bar').style.width = idx === 0 ? '0%' : ((idx / (SCREENS.length - 1)) * 100) + '%';
+  document.getElementById('back-b').className = 'back-b' + (idx > 0 ? ' vis' : '');
+  window.scrollTo(0, 0);
+}
+
+function goBack() {
+  const cur = SCREENS.indexOf(state.screen || 'welcome');
+  if (cur > 0) showScreen(SCREENS[cur - 1]);
+}
+
+// ══════════════════════════════════════════
+//  WELCOME
+// ══════════════════════════════════════════
+function startFlow() {
+  state.selected = {};
+  state.drawingData = null;
+  state.showingMore = false;
+  buildEmotionGrid();
+  showScreen('emotions');
+}
+
+function resetFlow() {
+  startFlow();
+}
+
+// ══════════════════════════════════════════
+//  EMOTION GRID
+// ══════════════════════════════════════════
+function buildEmotionGrid() {
+  const grid = document.getElementById('em-grid');
+  grid.innerHTML = '';
+
+  const visible = EMOTIONS.filter(e => e.tier === 1 || state.showingMore);
+
+  visible.forEach(em => {
+    const wrapper = document.createElement('div');
+    wrapper.style.display = 'flex';
+    wrapper.style.flexDirection = 'column';
+    wrapper.style.gap = '.3rem';
+
+    // Flip card
+    const card = document.createElement('div');
+    card.className = 'flip-card' + (state.selected[em.id] !== undefined ? ' selected' : '');
+    card.style.setProperty('--em-color', em.color);
+    card.style.setProperty('--em-lt', em.lt);
+    card.style.setProperty('--em-dk', em.dk);
+    card.id = 'card-' + em.id;
+
+    card.innerHTML = `
+      <div class="flip-card-inner">
+        <div class="flip-front">
+          <div class="em-face">${em.face}</div>
+          <div class="em-label" style="color:${em.dk}">${em.label}</div>
+          <div class="flip-hint">Tap to learn more</div>
+        </div>
+        <div class="flip-back" style="background:${em.lt};border:2.5px solid ${em.color}">
+          <div class="flip-back-name" style="color:${em.dk}">${em.face} ${em.label}</div>
+          <div class="flip-back-label" style="color:${em.dk}88">What it means</div>
+          <div class="flip-back-def">${em.def}</div>
+          <div class="flip-back-label" style="color:${em.dk}88;margin-top:.2rem">Example</div>
+          <div class="flip-back-ex">${em.ex}</div>
+        </div>
+      </div>`;
+
+    let flipped = false;
+    card.addEventListener('click', () => {
+      if (!flipped) {
+        // First tap: flip to show info
+        card.classList.add('flipped');
+        flipped = true;
+      } else {
+        // Second tap: select/deselect
+        card.classList.remove('flipped');
+        flipped = false;
+        toggleEmotion(em, wrapper, card);
+      }
+    });
+
+    wrapper.appendChild(card);
+
+    // If already selected, show scale
+    if (state.selected[em.id] !== undefined) {
+      wrapper.appendChild(buildScale(em));
+    }
+
+    grid.appendChild(wrapper);
+  });
+
+  // More button
+  const moreBtn = document.getElementById('more-btn');
+  if (state.showingMore) moreBtn.style.display = 'none';
+  else moreBtn.style.display = '';
+
+  updateCountBadge();
+}
+
+function toggleEmotion(em, wrapper, card) {
+  if (state.selected[em.id] !== undefined) {
+    // Deselect
+    delete state.selected[em.id];
+    card.classList.remove('selected');
+    const existing = wrapper.querySelector('.scale-panel');
+    if (existing) existing.remove();
+  } else {
+    // Select
+    state.selected[em.id] = 5;
+    card.classList.add('selected');
+    wrapper.appendChild(buildScale(em));
+  }
+  updateCountBadge();
+}
+
+function buildScale(em) {
+  const panel = document.createElement('div');
+  panel.className = 'scale-panel';
+  panel.style.setProperty('--em-color', em.color);
+  panel.style.setProperty('--em-dk', em.dk);
+
+  const val = state.selected[em.id] ?? 5;
+  const pct = (val - 1) / 9 * 100;
+
+  panel.innerHTML = `
+    <div class="scale-label" style="color:${em.dk}">How much ${em.label.toLowerCase()}?</div>
+    <div class="scale-track">
+      <input type="range" min="1" max="10" value="${val}"
+        style="--pct:${pct}%;--em-color:${em.color}"
+        oninput="updateScale('${em.id}', this)">
+      <div class="scale-val" id="scale-val-${em.id}" style="color:${em.dk}">${val}</div>
+    </div>
+    <div class="scale-emojis">
+      <span>A little</span>
+      <span>A lot!</span>
+    </div>`;
+  return panel;
+}
+
+function updateScale(id, input) {
+  const val = parseInt(input.value);
+  state.selected[id] = val;
+  const pct = (val - 1) / 9 * 100;
+  input.style.setProperty('--pct', pct + '%');
+  const valEl = document.getElementById('scale-val-' + id);
+  if (valEl) valEl.textContent = val;
+}
+
+function updateCountBadge() {
+  const n = Object.keys(state.selected).length;
+  const badge = document.getElementById('em-count-badge');
+  badge.textContent = n === 0 ? '0 feelings picked' : n === 1 ? '1 feeling picked ✓' : `${n} feelings picked ✓`;
+  badge.style.background = n > 0 ? '#6BCB77' : '#4A90D9';
+  const nextBtn = document.getElementById('floating-next');
+  nextBtn.classList.toggle('ready', n > 0);
+  nextBtn.textContent = n === 0 ? 'Pick at least one feeling' : `Next: Draw a picture → (${n} feeling${n>1?'s':''})`;
+}
+
+function showMore() {
+  state.showingMore = true;
+  buildEmotionGrid();
+}
+
+// ══════════════════════════════════════════
+//  DRAW SCREEN
+// ══════════════════════════════════════════
+let drawCanvas, dCtx;
+let drawing = false;
+let drawHistory = []; // snapshots for undo
+let currentColor = '#2d3a4a';
+let currentSize = 6;
+let eraserOn = false;
+
+const DRAW_COLORS = [
+  '#2d3a4a','#e84040','#FF9F43','#FFD93D',
+  '#6BCB77','#4A90D9','#B084CC','#FF6BB5',
+  '#A8E6CF','#ffffff',
+];
+const BRUSH_SIZES = [
+  {size:3,label:'S'},{size:6,label:'M'},{size:12,label:'L'},{size:24,label:'XL'},
+];
+
+function goToDraw() {
+  showScreen('draw');
+  setTimeout(setupDrawCanvas, 80);
+}
+
+function setupDrawCanvas() {
+  drawCanvas = document.getElementById('draw-canvas');
+  const area = drawCanvas.parentElement;
+  const w = Math.min(area.clientWidth - 12, 560);
+  const h = Math.round(w * 0.65);
+  drawCanvas.width = w;
+  drawCanvas.height = h;
+  drawCanvas.style.width = w + 'px';
+  drawCanvas.style.height = h + 'px';
+
+  dCtx = drawCanvas.getContext('2d');
+  dCtx.fillStyle = '#ffffff';
+  dCtx.fillRect(0, 0, w, h);
+  drawHistory = [dCtx.getImageData(0, 0, w, h)];
+
+  // Restore existing drawing if returning
+  if (state.drawingData) {
+    const img = new Image();
+    img.onload = () => dCtx.drawImage(img, 0, 0);
+    img.src = state.drawingData;
+  }
+
+  buildColorPicker();
+  buildBrushPicker();
+  setupDrawEvents();
+}
+
+function buildColorPicker() {
+  const group = document.getElementById('color-group');
+  group.innerHTML = '';
+  DRAW_COLORS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'draw-color' + (c === currentColor ? ' active' : '');
+    btn.style.background = c;
+    btn.style.border = c === '#ffffff' ? '2.5px solid #d0dce8' : '3px solid transparent';
+    btn.onclick = () => {
+      currentColor = c;
+      eraserOn = false;
+      document.getElementById('eraser-btn').classList.remove('active');
+      document.querySelectorAll('.draw-color').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    group.appendChild(btn);
+  });
+}
+
+function buildBrushPicker() {
+  const group = document.getElementById('brush-group');
+  group.innerHTML = '';
+  BRUSH_SIZES.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'brush-btn' + (b.size === currentSize ? ' active' : '');
+    btn.style.width = btn.style.height = (Math.max(b.size * 2, 28)) + 'px';
+    const dot = document.createElement('div');
+    dot.className = 'brush-dot';
+    dot.style.width = dot.style.height = b.size + 'px';
+    btn.appendChild(dot);
+    btn.onclick = () => {
+      currentSize = b.size;
+      document.querySelectorAll('.brush-btn').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    group.appendChild(btn);
+  });
+}
+
+function setupDrawEvents() {
+  const getPos = (e, touch) => {
+    const rect = drawCanvas.getBoundingClientRect();
+    const scaleX = drawCanvas.width / rect.width;
+    const scaleY = drawCanvas.height / rect.height;
+    const src = touch || e;
+    return {
+      x: (src.clientX - rect.left) * scaleX,
+      y: (src.clientY - rect.top) * scaleY,
+    };
+  };
+
+  const startDraw = (x, y) => {
+    drawing = true;
+    dCtx.beginPath();
+    dCtx.moveTo(x, y);
+    dCtx.lineCap = 'round';
+    dCtx.lineJoin = 'round';
+    dCtx.strokeStyle = eraserOn ? '#ffffff' : currentColor;
+    dCtx.lineWidth = eraserOn ? currentSize * 3 : currentSize;
+  };
+
+  const continueDraw = (x, y) => {
+    if (!drawing) return;
+    dCtx.lineTo(x, y);
+    dCtx.stroke();
+    dCtx.beginPath();
+    dCtx.moveTo(x, y);
+  };
+
+  const endDraw = () => {
+    if (!drawing) return;
+    drawing = false;
+    dCtx.closePath();
+    // Save snapshot for undo (keep last 20)
+    const snap = dCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height);
+    drawHistory.push(snap);
+    if (drawHistory.length > 20) drawHistory.shift();
+  };
+
+  drawCanvas.addEventListener('mousedown', e => { const p = getPos(e); startDraw(p.x, p.y); });
+  drawCanvas.addEventListener('mousemove', e => { const p = getPos(e); continueDraw(p.x, p.y); });
+  drawCanvas.addEventListener('mouseup', endDraw);
+  drawCanvas.addEventListener('mouseleave', endDraw);
+
+  drawCanvas.addEventListener('touchstart', e => { e.preventDefault(); const p = getPos(e, e.touches[0]); startDraw(p.x, p.y); }, {passive:false});
+  drawCanvas.addEventListener('touchmove', e => { e.preventDefault(); const p = getPos(e, e.touches[0]); continueDraw(p.x, p.y); }, {passive:false});
+  drawCanvas.addEventListener('touchend', endDraw);
+}
+
+function toggleEraser() {
+  eraserOn = !eraserOn;
+  document.getElementById('eraser-btn').classList.toggle('active', eraserOn);
+}
+
+function undoDraw() {
+  if (drawHistory.length <= 1) return;
+  drawHistory.pop();
+  dCtx.putImageData(drawHistory[drawHistory.length - 1], 0, 0);
+}
+
+function clearDraw() {
+  dCtx.fillStyle = '#ffffff';
+  dCtx.fillRect(0, 0, drawCanvas.width, drawCanvas.height);
+  drawHistory = [dCtx.getImageData(0, 0, drawCanvas.width, drawCanvas.height)];
+}
+
+// ══════════════════════════════════════════
+//  SUMMARY
+// ══════════════════════════════════════════
+function goToSummary() {
+  // Save drawing
+  if (drawCanvas) state.drawingData = drawCanvas.toDataURL();
+  buildSummary();
+  showScreen('summary');
+  launchConfetti();
+}
+
+function buildSummary() {
+  const selected = Object.entries(state.selected);
+
+  // Face row
+  const faceRow = document.getElementById('sum-face-row');
+  faceRow.innerHTML = '';
+  selected.forEach(([id, val]) => {
+    const em = EMOTIONS.find(e => e.id === id);
+    if (!em) return;
+    const chip = document.createElement('div');
+    chip.className = 'sum-em-chip';
+    chip.style.background = em.lt;
+    chip.style.border = `2.5px solid ${em.color}`;
+    chip.innerHTML = `<span class="sum-em-face">${em.face}</span><span style="color:${em.dk};font-weight:900">${em.label}</span>`;
+    faceRow.appendChild(chip);
+  });
+
+  // Detail list
+  const detail = document.getElementById('sum-em-detail');
+  detail.innerHTML = '';
+  selected.sort((a, b) => b[1] - a[1]).forEach(([id, val]) => {
+    const em = EMOTIONS.find(e => e.id === id);
+    if (!em) return;
+    const row = document.createElement('div');
+    row.className = 'sum-em-row';
+    const pct = (val - 1) / 9 * 100;
+    row.innerHTML = `
+      <div class="sum-em-dot" style="background:${em.color}"></div>
+      <div class="sum-em-name" style="color:${em.dk}">${em.face} ${em.label}</div>
+      <div class="sum-em-scale">
+        <div class="sum-bar-track"><div class="sum-bar-fill" style="width:${pct}%;background:${em.color}"></div></div>
+        <div class="sum-bar-val">${val}/10</div>
+      </div>`;
+    detail.appendChild(row);
+  });
+
+  // Drawing preview
+  const drawCard = document.getElementById('sum-drawing-card');
+  const preview = document.getElementById('sum-preview');
+  if (state.drawingData) {
+    drawCard.style.display = 'block';
+    const img = new Image();
+    img.onload = () => {
+      preview.width = img.width;
+      preview.height = img.height;
+      preview.style.maxWidth = '100%';
+      preview.getContext('2d').drawImage(img, 0, 0);
+    };
+    img.src = state.drawingData;
+  } else {
+    drawCard.style.display = 'none';
+  }
+}
+
+// ══════════════════════════════════════════
+//  CONFETTI
+// ══════════════════════════════════════════
+function launchConfetti() {
+  const cols = ['#FFD93D','#FF6B6B','#6BCB77','#74B3CE','#B084CC','#FF9F43','#FF6BB5'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'confetti-p';
+      el.style.cssText = `left:${Math.random()*100}vw;background:${cols[Math.floor(Math.random()*cols.length)]};width:${7+Math.random()*9}px;height:${7+Math.random()*9}px;border-radius:${Math.random()>.5?'50%':'3px'};animation-duration:${1.8+Math.random()*2}s;animation-delay:${Math.random()*.6}s`;
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 4000);
+    }, i * 25);
+  }
+}
+
+// ── Init ──
+showScreen('welcome');
+</script>
+</body>
+</html>
