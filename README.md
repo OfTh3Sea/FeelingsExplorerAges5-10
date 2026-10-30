@@ -97,7 +97,7 @@ Feelings Explorer is built around core SEL principles for early childhood:
 ### Installation
 
 ```bash
-git clone https://github.com/OfTh3Sea/feelings-explorer.git
+git clone https://github.com/OfTh3Sea/FeelingsExplorerAges5-10.git
 cd feelings-explorer
 open feelings-explorer.html
 ```
